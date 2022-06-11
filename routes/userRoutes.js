@@ -15,15 +15,35 @@ const getUserData = (data, res, next) => {
     }
 };
 
-router.get('/', (req, res, next) => getUserData(userService.getUsers(), res, next), responseMiddleware);
+router.get(
+    '/',
+    (req, res, next) => getUserData(userService.getUsers(), res, next),
+    responseMiddleware
+);
 
-router.get('/:id', (req, res, next) => getUserData(userService.getUserById(req.params.id), res, next), responseMiddleware);
+router.get(
+    '/:id',
+    (req, res, next) => getUserData(userService.getUserById(req.params.id), res, next),
+    responseMiddleware
+);
 
-router.post('/', createUserValid, (req, res, next) => getUserData(userService.addUser(req.body), res, next), responseMiddleware);
+router.post(
+    '/',
+    createUserValid,
+    (req, res, next) => getUserData(userService.addUser(req.body), res, next),
+    responseMiddleware
+);
 
-router.put('/:id', updateUserValid, (req, res, next) => getUserData(userService.updateUser(req.params.id, req.body), res, next), responseMiddleware);
+router.put(
+    '/:id',
+    updateUserValid,
+    (req, res, next) => getUserData(userService.updateUser(req.params.id, req.body), res, next),
+    responseMiddleware
+);
 
-router.put('/:id', (req, res, next) => getUserData(userService.deleteUser(req.params.id), res, next),
+router.put(
+    '/:id',
+    (req, res, next) => getUserData(userService.deleteUser(req.params.id), res, next),
     (req, res, next) => {
         if (res.data.length) {
             res.data = { message: `User with id: ${id} deleted` };

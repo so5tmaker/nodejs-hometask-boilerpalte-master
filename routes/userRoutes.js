@@ -47,7 +47,7 @@ router.put(
     (req, res, next) => {
         if (res.data.length) {
             res.data = { message: `User with id: ${id} deleted` };
-            res.statusCode = 400;
+            res.statusCode = 200;
         } else {
             res.statusCode = 404;
         }

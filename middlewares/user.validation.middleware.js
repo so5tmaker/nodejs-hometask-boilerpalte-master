@@ -13,7 +13,7 @@ const createUserValid = (req, res, next) => {
 
     if (!sameKeys || newUserKeys.length !== 5) {
         res.status(400);
-        res.err = "Invalid user data";
+        res.err = "Invalid user data!";
         return middleware(req, res, next);
     }
 
@@ -37,6 +37,7 @@ const createUserValid = (req, res, next) => {
         res.err = "The phone number should be in the following format: +380xxxxxxxxx";
         return middleware(req, res, next);
     }
+
     if (password.length < pswdLength) {
         res.status(400);
         res.err = `The password must be at least ${pswdLength} characters long`;
@@ -71,7 +72,7 @@ const updateUserValid = (req, res, next) => {
 
     if (!sameKeys) {
         res.status(400);
-        res.err = "Invalid user data";
+        res.err = "Invalid user data!";
         return middleware(req, res, next);
     }
 
@@ -95,6 +96,7 @@ const updateUserValid = (req, res, next) => {
         res.err = "The phone number should be in the following format: +380xxxxxxxxx";
         return middleware(req, res, next);
     }
+
     if (password && password.length < pswdLength) {
         res.status(400);
         res.err = `The password must be at least ${pswdLength} characters long`;

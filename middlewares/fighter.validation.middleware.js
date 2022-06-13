@@ -7,10 +7,10 @@ const createFighterValid = (req, res, next) => {
     const fighterKeys = Object.keys(fighter);
     const newFighterKeys = Object.keys(newFighter);
     const sameKeys = newFighterKeys.every((key) => fighterKeys.includes(key));
-    const { newName, power, health, defense } = newFighter;
+    const { name: newName, power, health, defense } = newFighter;
 
     if (
-        !sameKeys ||
+        !sameKeys || newFighter.id ||
         newFighterKeys.length < 3 ||
         newFighterKeys.length > 4
     ) {
@@ -22,12 +22,6 @@ const createFighterValid = (req, res, next) => {
     if (newFighter.length === 0) {
         res.status(400);
         res.err = "Fighter data haven't been found";
-        return middleware(req, res, next);
-    }
-
-    if (!newName || newName.length === 0) {
-        res.status(400);
-        res.err = "Fighter name haven't been found";
         return middleware(req, res, next);
     }
 
@@ -44,7 +38,7 @@ const createFighterValid = (req, res, next) => {
     }
 
     if (!health) {
-        health = 100;
+        newFighter.health = 100;
     }
 
     if (
@@ -68,23 +62,28 @@ const createFighterValid = (req, res, next) => {
     }
 
     if (
-        isNaN(health) ||
-        Number(health) > 120 ||
-        Number(health) < 80
+        isNaN(newFighter.health) ||
+        Number(newFighter.health) > 120 ||
+        Number(newFighter.health) < 80
     ) {
         res.status(400);
         res.err = "Please enter the health value from 80 to 120.";
         return middleware(req, res, next);
     }
 
+    let isError = false;
     const fighters = fighterService.getFighters();
     fighters.map((fighter) => {
         if (fighter.name.toLowerCase() === newName.toLowerCase()) {
             res.status(400);
             res.err = "A fighter with such a name already exists! Please, enter a different name.";
-            return middleware(req, res, next);
+            isError = true;
         }
     });
+
+    if (isError) {
+        return middleware(req, res, next);
+    }
 
     // TODO: Implement validatior for fighter entity during creation
     next();
@@ -96,7 +95,7 @@ const updateFighterValid = (req, res, next) => {
     const fighterKeys = Object.keys(fighter);
     const newFighterKeys = Object.keys(newFighter);
     const sameKeys = newFighterKeys.every((key) => fighterKeys.includes(key));
-    const { newName, power, health, defense } = newFighter;
+    const { name: newName, power, health, defense } = newFighter;
 
     if (!sameKeys || newFighter.id) {
         res.status(400);
@@ -104,7 +103,7 @@ const updateFighterValid = (req, res, next) => {
         return middleware(req, res, next);
     }
 
-    if (newFighter.length === 0) {
+    if (newFighterKeys.length === 0) {
         res.status(400);
         res.err = "Fighter data haven't been found";
         return middleware(req, res, next);
@@ -140,6 +139,7 @@ const updateFighterValid = (req, res, next) => {
         return middleware(req, res, next);
     }
 
+    let isError = false;
     const fighters = fighterService.getFighters();
     fighters
         .filter((fighter) => fighter.id !== id)
@@ -150,10 +150,13 @@ const updateFighterValid = (req, res, next) => {
             ) {
                 res.status(400);
                 res.err = "A fighter with such a name already exists! Please, enter a different name.";
-                return middleware(req, res, next);
+                isError = true;
             }
         });
 
+    if (isError) {
+        return middleware(req, res, next);
+    }
     // TODO: Implement validatior for fighter entity during update
     next();
 };

@@ -11,7 +11,7 @@ const createUserValid = (req, res, next) => {
     const sameKeys = newUserKeys.every((key) => userKeys.includes(key));
     const { email, phoneNumber, password } = newUser;
 
-    if (!sameKeys || newUserKeys.length !== 5) {
+    if (!sameKeys || newUser.id || newUserKeys.length !== 5) {
         res.status(400);
         res.err = "Invalid user data!";
         return middleware(req, res, next);
@@ -44,19 +44,24 @@ const createUserValid = (req, res, next) => {
         return middleware(req, res, next);
     }
 
+    let isError = false;
     const users = userService.getUsers();
     users.map((user) => {
         if (user.email.toLowerCase() === email.toLowerCase()) {
             res.status(400);
             res.err = "A user with such an email address already exists! Please, use a different email address.";
-            return middleware(req, res, next);
+            isError = true;
         }
         if (user.phoneNumber.toLowerCase() === phoneNumber.toLowerCase()) {
             res.status(400);
             res.err = "A user with such a phone number already exists! Please, use a different phone number.";
-            return middleware(req, res, next);
+            isError = true;
         }
     });
+
+    if (isError) {
+        return middleware(req, res, next);
+    }
 
     // TODO: Implement validatior for user entity during creation
     next();
@@ -70,7 +75,7 @@ const updateUserValid = (req, res, next) => {
     const sameKeys = newUserKeys.every((key) => userKeys.includes(key));
     const { email, phoneNumber, password } = newUser;
 
-    if (!sameKeys) {
+    if (!sameKeys || newUser.id) {
         res.status(400);
         res.err = "Invalid user data!";
         return middleware(req, res, next);
@@ -103,6 +108,7 @@ const updateUserValid = (req, res, next) => {
         return middleware(req, res, next);
     }
 
+    let isError = false;
     const users = userService.getUsers();
     users
         .filter((user) => user.id !== id)
@@ -113,7 +119,7 @@ const updateUserValid = (req, res, next) => {
             ) {
                 res.status(400);
                 res.err = "A user with such an email address already exists! Please, use a different email address.";
-                return middleware(req, res, next);
+                isError = true;
             }
             if (
                 phoneNumber &&
@@ -121,10 +127,13 @@ const updateUserValid = (req, res, next) => {
             ) {
                 res.status(400);
                 res.err = "A user with such a phone number already exists! Please, use a different phone number.";
-                return middleware(req, res, next);
+                isError = true;
             }
         });
 
+    if (isError) {
+        return middleware(req, res, next);
+    }
     // TODO: Implement validatior for user entity during update
     next();
 };

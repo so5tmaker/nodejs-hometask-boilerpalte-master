@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const fighterService = require('../services/fighterService');
-const { responseMiddleware } = require('../middlewares/response.middleware');
+const { responseMiddleware: middleware } = require('../middlewares/response.middleware');
 const { createFighterValid, updateFighterValid } = require('../middlewares/fighter.validation.middleware');
 
 const router = Router();
@@ -18,27 +18,27 @@ const getFighterData = (data, res, next) => {
 router.get(
     '/',
     (req, res, next) => getFighterData(fighterService.getFighters(), res, next),
-    responseMiddleware
+    middleware
 );
 
 router.get(
     '/:id',
     (req, res, next) => getFighterData(fighterService.getFighterById(req.params.id), res, next),
-    responseMiddleware
+    middleware
 );
 
 router.post(
     '/',
     createFighterValid,
     (req, res, next) => getFighterData(fighterService.addFighter(req.body), res, next),
-    responseMiddleware
+    middleware
 );
 
 router.put(
     '/:id',
     updateFighterValid,
     (req, res, next) => getFighterData(fighterService.updateFighter(req.params.id, req.body), res, next),
-    responseMiddleware
+    middleware
 );
 
 router.put(
@@ -53,7 +53,7 @@ router.put(
         }
         next();
     },
-    responseMiddleware);
+    middleware);
 // TODO: Implement route controllers for fighter
 
 module.exports = router;

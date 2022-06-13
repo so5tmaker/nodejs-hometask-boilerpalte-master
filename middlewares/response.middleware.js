@@ -10,7 +10,7 @@ const responseMiddleware = (req, res, next) => {
     if (res.statusCode) {
         return res.status(404).json({
             error: true,
-            message: "Requested data haven't been found",
+            message: "Requested data haven't been found!",
         });
     }
     // TODO: Implement middleware that returns result of the query

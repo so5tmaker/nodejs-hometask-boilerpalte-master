@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const userService = require('../services/userService');
 const { createUserValid, updateUserValid } = require('../middlewares/user.validation.middleware');
-const { responseMiddleware } = require('../middlewares/response.middleware');
+const { responseMiddleware: middleware } = require('../middlewares/response.middleware');
 
 const router = Router();
 
@@ -18,27 +18,27 @@ const getUserData = (data, res, next) => {
 router.get(
     '/',
     (req, res, next) => getUserData(userService.getUsers(), res, next),
-    responseMiddleware
+    middleware
 );
 
 router.get(
     '/:id',
     (req, res, next) => getUserData(userService.getUserById(req.params.id), res, next),
-    responseMiddleware
+    middleware
 );
 
 router.post(
     '/',
     createUserValid,
     (req, res, next) => getUserData(userService.addUser(req.body), res, next),
-    responseMiddleware
+    middleware
 );
 
 router.put(
     '/:id',
     updateUserValid,
     (req, res, next) => getUserData(userService.updateUser(req.params.id, req.body), res, next),
-    responseMiddleware
+    middleware
 );
 
 router.put(
@@ -53,7 +53,7 @@ router.put(
         }
         next();
     },
-    responseMiddleware);
+    middleware);
 // TODO: Implement route controllers for user
 
 module.exports = router;

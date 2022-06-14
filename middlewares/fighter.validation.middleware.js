@@ -94,13 +94,5 @@ const commonValid = (req, res, next, isUpdate = false) => {
     next();
 };
 
-const createFighterValid = (req, res, next) => {
-    commonValid(req, res, next);
-}
-
-const updateFighterValid = (req, res, next) => {
-    commonValid(req, res, next, true);
-}
-
-exports.createFighterValid = createFighterValid;
-exports.updateFighterValid = updateFighterValid;
+exports.createFighterValid = (req, res, next) => commonValid(req, res, next);;
+exports.updateFighterValid = (req, res, next) => commonValid(req, res, next, true);

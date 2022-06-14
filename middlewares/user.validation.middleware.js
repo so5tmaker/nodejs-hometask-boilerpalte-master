@@ -81,13 +81,5 @@ const commonValid = (req, res, next, isUpdate = false) => {
     next();
 };
 
-const createUserValid = (req, res, next) => {
-    commonValid(req, res, next);
-};
-
-const updateUserValid = (req, res, next) => {
-    commonValid(req, res, next, true);
-};
-
-exports.createUserValid = createUserValid;
-exports.updateUserValid = updateUserValid;
+exports.createUserValid = (req, res, next) => commonValid(req, res, next);
+exports.updateUserValid = (req, res, next) => commonValid(req, res, next, true);

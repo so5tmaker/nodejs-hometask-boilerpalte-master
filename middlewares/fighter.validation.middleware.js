@@ -2,164 +2,106 @@ const { fighter } = require("../models/fighter");
 const fighterService = require("../services/fighterService");
 const { responseMiddleware: middleware } = require("../middlewares/response.middleware");
 
-const createFighterValid = (req, res, next) => {
-    const newFighter = req.body;
-    const fighterKeys = Object.keys(fighter);
-    const newFighterKeys = Object.keys(newFighter);
-    const sameKeys = newFighterKeys.every((key) => fighterKeys.includes(key));
-    const { name: newName, power, health, defense } = newFighter;
-
+const checkValuesFromTo = (res, itemValue, itemName, from, to) => {
     if (
-        !sameKeys || newFighter.id ||
-        newFighterKeys.length < 3 ||
-        newFighterKeys.length > 4
+        (itemValue && isNaN(itemValue)) ||
+        (itemValue && Number(itemValue) > to) ||
+        Number(itemValue) < from
     ) {
+        res.status(400);
+        res.err = `Please enter the ${itemName} value from ${from} to ${to}.`;
+        return true;
+    }
+    return false;
+}
+
+const checkValues = (res, itemValue, itemName) => {
+    if (itemValue) {
+        res.status(400);
+        res.err = `Fighter ${itemName} haven't been found!`;
+        return true;
+    }
+    return false;
+}
+
+
+const commonValid = (req, res, next, isUpdate = false) => {
+    const { body: newItem } = req;
+    const itemKeys = Object.keys(fighter);
+    const newItemKeys = Object.keys(newItem);
+    const sameKeys = newItemKeys.every((key) => itemKeys.includes(key));
+    const { name: newName, power, health, defense } = newItem;
+
+    let newDataCheck = !sameKeys || newItem.id;
+    if (!isUpdate) {
+        newDataCheck = newDataCheck ||
+            newItemKeys.length < 3 ||
+            newItemKeys.length > 4;
+    }
+    if (newDataCheck) {
         res.status(400);
         res.err = "Invalid fighter data!";
         return middleware(req, res, next);
     }
 
-    if (newFighter.length === 0) {
-        res.status(400);
-        res.err = "Fighter data haven't been found";
+    if (checkValues(res, newItem.length === 0, 'data')) {
         return middleware(req, res, next);
     }
 
-    if (!power) {
-        res.status(400);
-        res.err = "Fighter power haven't been found";
+    if (!isUpdate) {
+        if (checkValues(res, !power, 'power')) {
+            return middleware(req, res, next);
+        }
+        if (checkValues(res, !defense, 'defense')) {
+            return middleware(req, res, next);
+        }
+    }
+
+    if (checkValuesFromTo(res, power, 'power', 1, 100)) {
         return middleware(req, res, next);
     }
 
-    if (!defense) {
-        res.status(400);
-        res.err = "Fighter defense haven't been found";
+    if (checkValuesFromTo(res, defense, 'defense', 1, 10)) {
         return middleware(req, res, next);
     }
 
-    if (!health) {
-        newFighter.health = 100;
+    let newHealth = health;
+    if (!isUpdate && !health) {
+        newItem.health = 100;
+        newHealth = newItem.health;
     }
-
-    if (
-        isNaN(power) ||
-        Number(power) > 100 ||
-        Number(power) < 1
-    ) {
-        res.status(400);
-        res.err = "Please enter the power value from 1 to 100.";
-        return middleware(req, res, next);
-    }
-
-    if (
-        isNaN(defense) ||
-        Number(defense) > 10 ||
-        Number(defense) < 1
-    ) {
-        res.status(400);
-        res.err = "Please enter the defense value from 1 to 10.";
-        return middleware(req, res, next);
-    }
-
-    if (
-        isNaN(newFighter.health) ||
-        Number(newFighter.health) > 120 ||
-        Number(newFighter.health) < 80
-    ) {
-        res.status(400);
-        res.err = "Please enter the health value from 80 to 120.";
+    if (checkValuesFromTo(res, newHealth, 'health', 80, 120)) {
         return middleware(req, res, next);
     }
 
     let isError = false;
-    const fighters = fighterService.getFighters();
-    fighters.map((fighter) => {
-        if (fighter.name.toLowerCase() === newName.toLowerCase()) {
+    let items = fighterService.getFighters();
+    if (isUpdate) {
+        items = items.filter((item) => item.id !== req.params.id);
+    }
+    items.forEach((item) => {
+        const checkLowerCase = item.name.toLowerCase() === newName.toLowerCase();
+        if (newName && checkLowerCase) {
             res.status(400);
             res.err = "A fighter with such a name already exists! Please, enter a different name.";
             isError = true;
+            return;
         }
     });
 
     if (isError) {
         return middleware(req, res, next);
     }
-
-    // TODO: Implement validatior for fighter entity during creation
     next();
 };
+
+const createFighterValid = (req, res, next) => {
+    commonValid(req, res, next);
+}
 
 const updateFighterValid = (req, res, next) => {
-    const { id } = req.params;
-    const newFighter = req.body;
-    const fighterKeys = Object.keys(fighter);
-    const newFighterKeys = Object.keys(newFighter);
-    const sameKeys = newFighterKeys.every((key) => fighterKeys.includes(key));
-    const { name: newName, power, health, defense } = newFighter;
-
-    if (!sameKeys || newFighter.id) {
-        res.status(400);
-        res.err = "Invalid fighter data!";
-        return middleware(req, res, next);
-    }
-
-    if (newFighterKeys.length === 0) {
-        res.status(400);
-        res.err = "Fighter data haven't been found";
-        return middleware(req, res, next);
-    }
-
-    if (
-        (power && isNaN(power)) ||
-        (power && Number(power) > 100) ||
-        Number(power) < 1
-    ) {
-        res.status(400);
-        res.err = "Please enter the power value from 1 to 100.";
-        return middleware(req, res, next);
-    }
-
-    if (
-        (defense && isNaN(defense)) ||
-        (defense && Number(defense) > 10) ||
-        Number(defense) < 1
-    ) {
-        res.status(400);
-        res.err = "Please enter the defense value from 1 to 10.";
-        return middleware(req, res, next);
-    }
-
-    if (
-        (health && isNaN(health)) ||
-        (health && Number(health) > 120) ||
-        Number(health) < 80
-    ) {
-        res.status(400);
-        res.err = "Please enter the health value from 80 to 120.";
-        return middleware(req, res, next);
-    }
-
-    let isError = false;
-    const fighters = fighterService.getFighters();
-    fighters
-        .filter((fighter) => fighter.id !== id)
-        .map((fighter) => {
-            if (
-                newName &&
-                fighter.name.toLowerCase() === newName.toLowerCase()
-            ) {
-                res.status(400);
-                res.err = "A fighter with such a name already exists! Please, enter a different name.";
-                isError = true;
-            }
-        });
-
-    if (isError) {
-        return middleware(req, res, next);
-    }
-    // TODO: Implement validatior for fighter entity during update
-    next();
-};
+    commonValid(req, res, next, true);
+}
 
 exports.createFighterValid = createFighterValid;
 exports.updateFighterValid = updateFighterValid;

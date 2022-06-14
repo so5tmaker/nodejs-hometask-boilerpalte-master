@@ -24,7 +24,6 @@ const checkValues = (res, itemValue, itemName) => {
     return false;
 }
 
-
 const commonValid = (req, res, next, isUpdate = false) => {
     const { body: newItem } = req;
     const itemKeys = Object.keys(fighter);

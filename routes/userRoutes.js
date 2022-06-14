@@ -3,5 +3,4 @@ const { createUserValid, updateUserValid } = require('../middlewares/user.valida
 const commonRoutes = require('./commonRoutes');
 
 // TODO: Implement route controllers for user
-
 module.exports = commonRoutes(userService, createUserValid, updateUserValid);

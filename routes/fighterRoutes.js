@@ -3,5 +3,4 @@ const { createFighterValid, updateFighterValid } = require('../middlewares/fight
 const commonRoutes = require('./commonRoutes');
 
 // TODO: Implement route controllers for fighter
-
 module.exports = commonRoutes(fighterService, createFighterValid, updateFighterValid, "Fighter");

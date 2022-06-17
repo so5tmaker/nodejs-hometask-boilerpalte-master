@@ -10,7 +10,7 @@ const checkValues = (res, user, item, itemName, itemDefinition, isUpdate) => {
         const checkUpdate = isUpdate ? item && checkLowerCase : checkLowerCase;
         if (checkUpdate) {
             res.status(400);
-            res.err = `A user with such a/an ${itemDefinition} already exists! Please, use a different ${itemDefinition}`;
+            res.err = `A user with such a/an ${itemDefinition} already exists! Please, use a different ${itemDefinition}!`;
             return true;
         }
     }
@@ -36,26 +36,26 @@ const commonValid = (req, res, next, isUpdate = false) => {
 
     if (newUserKeys.length === 0) {
         res.status(400);
-        res.err = "User data haven't been found";
+        res.err = "User data haven't been found!";
         return middleware(req, res, next);
     }
 
     if (email && !email.includes("@gmail")) {
         res.status(400);
-        res.err = "Please, use gmail only";
+        res.err = "Please, use gmail only!";
         return middleware(req, res, next);
     }
 
     if ((phoneNumber && phoneNumber.slice(0, 4) !== "+380") ||
         (phoneNumber && phoneNumber.length !== 13)) {
         res.status(400);
-        res.err = "The phone number should be in the following format: +380xxxxxxxxx";
+        res.err = "The phone number should be in the following format: +380xxxxxxxxx!";
         return middleware(req, res, next);
     }
 
     if (password && password.length < pswdLength) {
         res.status(400);
-        res.err = `The password must be at least ${pswdLength} characters long`;
+        res.err = `The password must be at least ${pswdLength} characters long!`;
         return middleware(req, res, next);
     }
 
